@@ -19,7 +19,7 @@ import { DeleteProductController } from "@/controllers/product/DeleteProductCont
 import { GetCatalogController } from "@/controllers/catalog/GetCatalogController";
 import { CheckoutController } from "@/controllers/catalog/CheckoutController";
 
-// Company Controllers
+// Admin Controllers
 import { UpdateCompanyPhoneController } from "@/controllers/company/UpdateCompanyPhoneController";
 import { ListCompaniesController } from "@/controllers/admin/ListCompaniesController";
 import { UpdateCompanyPremiumController } from "@/controllers/admin/UpdateCompanyPremiumController";
@@ -27,10 +27,7 @@ import { AdminStatsController } from "@/controllers/admin/AdminStatsController";
 import { isAdmin } from "@/middlewares/adminAuth";
 
 // Schemas
-import {
-  createCompanySchema,
-  authSchema,
-} from "@/schemas/companySchema";
+import { createCompanySchema, authSchema } from "@/schemas/companySchema";
 import {
   createProductSchema,
   updateProductSchema,
@@ -42,65 +39,44 @@ const router = Router();
 
 // ==================== COMPANY ====================
 
-// Create company
-router.post(
-  "/company",
-  validateSchema(createCompanySchema),
-  async (req, res, next) => {
-    try {
-      const controller = new CreateCompanyController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.post("/company", validateSchema(createCompanySchema), async (req, res, next) => {
+  try {
+    const controller = new CreateCompanyController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Auth (Login)
-router.post(
-  "/session",
-  validateSchema(authSchema),
-  async (req, res, next) => {
-    try {
-      const controller = new AuthCompanyController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.post("/session", validateSchema(authSchema), async (req, res, next) => {
+  try {
+    const controller = new AuthCompanyController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Get company details
-router.get(
-  "/me",
-  isAuthenticated,
-  async (req, res, next) => {
-    try {
-      const controller = new DetailCompanyController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.get("/me", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = new DetailCompanyController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Update company phone
-router.put(
-  "/company/phone",
-  isAuthenticated,
-  async (req, res, next) => {
-    try {
-      const controller = new UpdateCompanyPhoneController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.put("/company/phone", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = new UpdateCompanyPhoneController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // ==================== PRODUCT ====================
 
-// Create product
 router.post(
   "/product",
   isAuthenticated,
@@ -116,22 +92,15 @@ router.post(
   }
 );
 
-// List products
-router.get(
-  "/products",
-  isAuthenticated,
-  validateSchema(listProductsSchema),
-  async (req, res, next) => {
-    try {
-      const controller = new ListProductsController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.get("/products", isAuthenticated, validateSchema(listProductsSchema), async (req, res, next) => {
+  try {
+    const controller = new ListProductsController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Update product
 router.put(
   "/product/:id",
   isAuthenticated,
@@ -147,95 +116,63 @@ router.put(
   }
 );
 
-// Delete product
-router.delete(
-  "/product/:id",
-  isAuthenticated,
-  validateSchema(deleteProductSchema),
-  async (req, res, next) => {
-    try {
-      const controller = new DeleteProductController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.delete("/product/:id", isAuthenticated, validateSchema(deleteProductSchema), async (req, res, next) => {
+  try {
+    const controller = new DeleteProductController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // ==================== PUBLIC CATALOG ====================
 
-// Get catalog by slug (public route)
-router.get(
-  "/catalog/:slug",
-  async (req, res, next) => {
-    try {
-      const controller = new GetCatalogController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.get("/catalog/:slug", async (req, res, next) => {
+  try {
+    const controller = new GetCatalogController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Checkout - Send cart via WhatsApp (public route)
-router.post(
-  "/checkout",
-  async (req, res, next) => {
-    try {
-      const controller = new CheckoutController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.post("/checkout", async (req, res, next) => {
+  try {
+    const controller = new CheckoutController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
-    }
-  }
-);
+});
 
 // ==================== ADMIN ====================
 
-// List all companies
-router.get(
-  "/admin/companies",
-  isAdmin,
-  async (req, res, next) => {
-    try {
-      const controller = new ListCompaniesController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.get("/admin/companies", isAdmin, async (req, res, next) => {
+  try {
+    const controller = new ListCompaniesController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Get admin stats
-router.get(
-  "/admin/stats",
-  isAdmin,
-  async (req, res, next) => {
-    try {
-      const controller = new AdminStatsController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.get("/admin/stats", isAdmin, async (req, res, next) => {
+  try {
+    const controller = new AdminStatsController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-// Update company premium status
-router.put(
-  "/admin/company/:id/premium",
-  isAdmin,
-  async (req, res, next) => {
-    try {
-      req.body.companyId = req.params.id;
-      const controller = new UpdateCompanyPremiumController();
-      await controller.handle(req, res);
-    } catch (error) {
-      next(error);
-    }
+router.put("/admin/company/:id/premium", isAdmin, async (req, res, next) => {
+  try {
+    req.body.companyId = req.params.id;
+    const controller = new UpdateCompanyPremiumController();
+    await controller.handle(req, res);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 export { router };

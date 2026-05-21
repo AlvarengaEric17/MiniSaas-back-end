@@ -28,13 +28,17 @@ export class CreateProductService {
     }
 
     // Create product
+    // Realizamos a conversão explícita para garantir compatibilidade com o banco
     const product = await prisma.product.create({
       data: {
         name: data.name,
         description: data.description,
-        price: data.price,
+        price: Number(data.price), // Garante que seja Float
         image: data.image,
-        active: data.active ?? true,
+        // Garante que seja booleano, tratando strings "true"/"false" corretamente
+        active: typeof data.active === "string" 
+          ? data.active === "true" 
+          : (data.active ?? true),
         companyId,
       },
     });

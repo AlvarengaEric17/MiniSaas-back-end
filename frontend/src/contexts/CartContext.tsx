@@ -47,11 +47,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [items, isHydrated]);
 
   const addItem = (newItem: CartItem) => {
-    setItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === newItem.id);
+    setItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item.id === newItem.id);
 
       if (existingItem) {
-        return prevItems.map(item =>
+        return prevItems.map((item) =>
           item.id === newItem.id
             ? { ...item, quantity: item.quantity + newItem.quantity }
             : item
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeItem = (itemId: string) => {
-    setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+    setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
   };
 
   const updateQuantity = (itemId: string, quantity: number) => {
@@ -72,8 +72,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setItems(prevItems =>
-      prevItems.map(item =>
+    setItems((prevItems) =>
+      prevItems.map((item) =>
         item.id === itemId ? { ...item, quantity } : item
       )
     );
@@ -91,10 +91,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return items.reduce((total, item) => total + item.quantity, 0);
   };
 
-  if (!isHydrated) {
-    return <>{children}</>;
-  }
-
+  // O Provider agora sempre envolve os children. 
+  // O estado 'isHydrated' continua sendo usado apenas para o localStorage.
   return (
     <CartContext.Provider
       value={{
@@ -104,7 +102,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity,
         clearCart,
         getTotalPrice,
-        getTotalItems
+        getTotalItems,
       }}
     >
       {children}
