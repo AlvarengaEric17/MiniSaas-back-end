@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "types": [
+            "node"
+        ], // <--- Adicione esta linha
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "lib": [
+            "ES2022"
+        ],
+        /* Nova forma de declarar caminhos sem usar baseUrl */
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

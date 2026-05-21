@@ -1,0 +1,158 @@
+// src/routes.ts
+import { Router } from "express";
+import { isAuthenticated } from "@/middlewares/isAuthenticated";
+import { validateSchema } from "@/middlewares/validateSchema";
+import { upload } from "@/config/multer";
+
+// Company Controllers
+import { CreateCompanyController } from "@/controllers/company/CreateCompanyController";
+import { AuthCompanyController } from "@/controllers/company/AuthCompanyController";
+import { DetailCompanyController } from "@/controllers/company/DetailCompanyController";
+
+// Product Controllers
+import { CreateProductController } from "@/controllers/product/CreateProductController";
+import { ListProductsController } from "@/controllers/product/ListProductsController";
+import { UpdateProductController } from "@/controllers/product/UpdateProductController";
+import { DeleteProductController } from "@/controllers/product/DeleteProductController";
+
+// Catalog Controller
+import { GetCatalogController } from "@/controllers/catalog/GetCatalogController";
+
+// Schemas
+import {
+  createCompanySchema,
+  authSchema,
+} from "@/schemas/companySchema";
+import {
+  createProductSchema,
+  updateProductSchema,
+  deleteProductSchema,
+  listProductsSchema,
+} from "@/schemas/productSchema";
+
+const router = Router();
+
+// ==================== COMPANY ====================
+
+// Create company
+router.post(
+  "/company",
+  validateSchema(createCompanySchema),
+  async (req, res, next) => {
+    try {
+      const controller = new CreateCompanyController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Auth (Login)
+router.post(
+  "/session",
+  validateSchema(authSchema),
+  async (req, res, next) => {
+    try {
+      const controller = new AuthCompanyController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Get company details
+router.get(
+  "/me",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = new DetailCompanyController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ==================== PRODUCT ====================
+
+// Create product
+router.post(
+  "/product",
+  isAuthenticated,
+  upload.single("image"),
+  validateSchema(createProductSchema),
+  async (req, res, next) => {
+    try {
+      const controller = new CreateProductController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// List products
+router.get(
+  "/products",
+  isAuthenticated,
+  validateSchema(listProductsSchema),
+  async (req, res, next) => {
+    try {
+      const controller = new ListProductsController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Update product
+router.put(
+  "/product/:id",
+  isAuthenticated,
+  upload.single("image"),
+  validateSchema(updateProductSchema),
+  async (req, res, next) => {
+    try {
+      const controller = new UpdateProductController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Delete product
+router.delete(
+  "/product/:id",
+  isAuthenticated,
+  validateSchema(deleteProductSchema),
+  async (req, res, next) => {
+    try {
+      const controller = new DeleteProductController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ==================== PUBLIC CATALOG ====================
+
+// Get catalog by slug (public route)
+router.get(
+  "/catalog/:slug",
+  async (req, res, next) => {
+    try {
+      const controller = new GetCatalogController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+export { router };

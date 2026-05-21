@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Volte com essa linha!
+}
+// Seus models (Company, Product) ficam exatamente como estavam antes
+
+model Company {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  password     String
+  slug         String    @unique
+  logo         String?
+  premium      Boolean   @default(false)
+  maxProducts  Int       @default(10)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  products     Product[]
+
+  @@map("companies")
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  image       String?
+  active      Boolean   @default(true)
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([companyId])
+  @@map("products")
+}
