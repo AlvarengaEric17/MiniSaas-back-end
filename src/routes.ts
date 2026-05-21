@@ -17,8 +17,10 @@ import { DeleteProductController } from "@/controllers/product/DeleteProductCont
 
 // Catalog Controller
 import { GetCatalogController } from "@/controllers/catalog/GetCatalogController";
+import { CheckoutController } from "@/controllers/catalog/CheckoutController";
 
-// Admin Controllers
+// Company Controllers
+import { UpdateCompanyPhoneController } from "@/controllers/company/UpdateCompanyPhoneController";
 import { ListCompaniesController } from "@/controllers/admin/ListCompaniesController";
 import { UpdateCompanyPremiumController } from "@/controllers/admin/UpdateCompanyPremiumController";
 import { AdminStatsController } from "@/controllers/admin/AdminStatsController";
@@ -75,6 +77,20 @@ router.get(
   async (req, res, next) => {
     try {
       const controller = new DetailCompanyController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Update company phone
+router.put(
+  "/company/phone",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = new UpdateCompanyPhoneController();
       await controller.handle(req, res);
     } catch (error) {
       next(error);
@@ -157,6 +173,22 @@ router.get(
       await controller.handle(req, res);
     } catch (error) {
       next(error);
+    }
+  }
+);
+
+// Checkout - Send cart via WhatsApp (public route)
+router.post(
+  "/checkout",
+  async (req, res, next) => {
+    try {
+      const controller = new CheckoutController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
     }
   }
 );

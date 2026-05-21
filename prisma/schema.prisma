@@ -15,6 +15,7 @@ model Company {
   password     String
   slug         String    @unique
   logo         String?
+  phone        String?   @db.VarChar(20)
   premium      Boolean   @default(false)
   maxProducts  Int       @default(10)
   createdAt    DateTime  @default(now())
