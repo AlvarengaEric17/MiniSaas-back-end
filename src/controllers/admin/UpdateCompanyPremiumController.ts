@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "@/prisma";
+import { adminService } from "@/services/admin/AdminService";
 
 interface UpdateCompanyRequest extends Request {
   body: {
@@ -19,36 +19,11 @@ export class UpdateCompanyPremiumController {
         return;
       }
 
-      const company = await prisma.company.findUnique({
-        where: { id: companyId }
-      });
-
-      if (!company) {
-        res.status(404).json({ error: "Company not found" });
-        return;
-      }
-
-      const updateData: any = { premium };
-      if (maxProducts !== undefined) {
-        updateData.maxProducts = maxProducts;
-      }
-
-      const updatedCompany = await prisma.company.update({
-        where: { id: companyId },
-        data: updateData,
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          slug: true,
-          premium: true,
-          maxProducts: true,
-          createdAt: true,
-          _count: {
-            select: { products: true }
-          }
-        }
-      });
+      const updatedCompany = await adminService.updateCompanyPremium(
+        companyId,
+        premium,
+        maxProducts
+      );
 
       res.status(200).json({
         success: true,
@@ -56,7 +31,11 @@ export class UpdateCompanyPremiumController {
         data: updatedCompany
       });
     } catch (error) {
-      throw error;
+      if (error instanceof Error && error.message === "Company not found") {
+        res.status(404).json({ error: "Company not found" });
+      } else {
+        throw error;
+      }
     }
   }
 }

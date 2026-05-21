@@ -22,11 +22,12 @@ export interface AdminStats {
 }
 
 export const adminService = {
-  async getCompanies(adminEmail: string): Promise<Company[]> {
+  async getCompanies(adminEmail: string, adminPassword: string): Promise<Company[]> {
     const response = await fetch(`${API_BASE_URL}/admin/companies`, {
       method: "GET",
       headers: {
         "x-admin-email": adminEmail,
+        "x-admin-password": adminPassword,
         "Content-Type": "application/json"
       }
     });
@@ -40,11 +41,12 @@ export const adminService = {
     return data.data;
   },
 
-  async getStats(adminEmail: string): Promise<AdminStats> {
+  async getStats(adminEmail: string, adminPassword: string): Promise<AdminStats> {
     const response = await fetch(`${API_BASE_URL}/admin/stats`, {
       method: "GET",
       headers: {
         "x-admin-email": adminEmail,
+        "x-admin-password": adminPassword,
         "Content-Type": "application/json"
       }
     });
@@ -62,7 +64,8 @@ export const adminService = {
     companyId: string,
     premium: boolean,
     maxProducts?: number,
-    adminEmail?: string
+    adminEmail?: string,
+    adminPassword?: string
   ): Promise<Company> {
     const response = await fetch(
       `${API_BASE_URL}/admin/company/${companyId}/premium`,
@@ -70,6 +73,7 @@ export const adminService = {
         method: "PUT",
         headers: {
           "x-admin-email": adminEmail || "",
+          "x-admin-password": adminPassword || "",
           "Content-Type": "application/json"
         },
         body: JSON.stringify({

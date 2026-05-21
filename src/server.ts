@@ -8,29 +8,28 @@ import { errorHandler } from "@/middlewares/errorHandler";
 const app = express();
 const PORT = process.env.PORT || 3333;
 
-// Configuração robusta do CORS para o ambiente Codespaces
-app.use(
-  cors({
-    origin: true, // Aceita dinamicamente a origem que faz a requisição (essencial para URLs do GitHub)
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-    preflightContinue: false, // O próprio pacote CORS intercepta e encerra a requisição OPTIONS
-    optionsSuccessStatus: 204, // Responde ao navegador com status de sucesso 204 (No Content)
-  })
-);
+// --- CORS FORÇADO (O PRIMEIRO DA FILA) ---
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Libera para qualquer origem
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-admin-email, x-admin-password");
 
-// Parsers para o corpo das requisições
-app.use(express.json());
+  // Se for o método OPTIONS (preflight), retorna 200 imediatamente
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// Mantemos o middleware do CORS para garantir a segurança no resto
+app.use(cors());
+
+app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Rotas da API
 app.use(router);
-
-// Tratamento global de erros (deve ser o último middleware)
 app.use(errorHandler);
 
-// Inicialização do servidor
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });

@@ -102,7 +102,7 @@ export default function CatalogPage() {
 
       <footer className={styles.footer}>
         <p>
-          Catálogo criado com <strong>MiniSaaS</strong> - Plataforma de Catálogos Web
+          Catálogo criado com <strong>Catálogo Web</strong> - Plataforma de Catálogos Web
         </p>
       </footer>
     </div>

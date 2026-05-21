@@ -6,17 +6,19 @@ import styles from "./page.module.scss";
 
 export default function AdminPage() {
   const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const [companies, setCompanies] = useState<Company[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [editingMaxProducts, setEditingMaxProducts] = useState<{ [key: string]: number }>({});
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminEmail.trim()) {
-      setError("Please enter your admin email");
+    if (!adminEmail.trim() || !adminPassword.trim()) {
+      setError("Please enter email and password");
       return;
     }
 
@@ -25,12 +27,13 @@ export default function AdminPage() {
 
     try {
       // Verify admin credentials by fetching companies
-      await adminService.getCompanies(adminEmail);
+      await adminService.getCompanies(adminEmail, adminPassword);
       setIsLoggedIn(true);
       localStorage.setItem("adminEmail", adminEmail);
+      localStorage.setItem("adminPassword", adminPassword);
       fetchData();
     } catch (err) {
-      setError("Invalid admin email or access denied");
+      setError("Invalid email, password or access denied");
       setIsLoggedIn(false);
     } finally {
       setLoading(false);
@@ -38,15 +41,15 @@ export default function AdminPage() {
   };
 
   const fetchData = async () => {
-    if (!adminEmail) return;
+    if (!adminEmail || !adminPassword) return;
 
     setLoading(true);
     setError("");
 
     try {
       const [companiesData, statsData] = await Promise.all([
-        adminService.getCompanies(adminEmail),
-        adminService.getStats(adminEmail)
+        adminService.getCompanies(adminEmail, adminPassword),
+        adminService.getStats(adminEmail, adminPassword)
       ]);
 
       setCompanies(companiesData);
@@ -67,7 +70,8 @@ export default function AdminPage() {
         company.id,
         !company.premium,
         undefined,
-        adminEmail
+        adminEmail,
+        adminPassword
       );
 
       setCompanies(
@@ -77,7 +81,7 @@ export default function AdminPage() {
       );
 
       // Refresh stats
-      const newStats = await adminService.getStats(adminEmail);
+      const newStats = await adminService.getStats(adminEmail, adminPassword);
       setStats(newStats);
     } catch (err) {
       setError(`Failed to update ${company.name}`);
@@ -86,19 +90,71 @@ export default function AdminPage() {
     }
   };
 
+  const handleMaxProductsChange = (companyId: string, value: string) => {
+    const numValue = parseInt(value) || 0;
+    setEditingMaxProducts(prev => ({
+      ...prev,
+      [companyId]: numValue
+    }));
+  };
+
+  const updateMaxProducts = async (company: Company) => {
+    const newMaxProducts = editingMaxProducts[company.id];
+
+    if (newMaxProducts === undefined) return;
+
+    setUpdatingId(company.id);
+    setError("");
+
+    try {
+      const updatedCompany = await adminService.updateCompanyPremium(
+        company.id,
+        company.premium,
+        newMaxProducts,
+        adminEmail,
+        adminPassword
+      );
+
+      setCompanies(
+        companies.map(c =>
+          c.id === updatedCompany.id ? updatedCompany : c
+        )
+      );
+
+      setEditingMaxProducts(prev => {
+        const newState = { ...prev };
+        delete newState[company.id];
+        return newState;
+      });
+
+      // Refresh stats
+      const newStats = await adminService.getStats(adminEmail, adminPassword);
+      setStats(newStats);
+    } catch (err) {
+      setError(`Failed to update max products for ${company.name}`);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     setAdminEmail("");
+    setAdminPassword("");
     setCompanies([]);
     setStats(null);
+    setEditingMaxProducts({});
     localStorage.removeItem("adminEmail");
+    localStorage.removeItem("adminPassword");
   };
 
-  // Load saved admin email on mount
+  // Load saved admin credentials on mount
   useEffect(() => {
     const savedEmail = localStorage.getItem("adminEmail");
-    if (savedEmail) {
+    const savedPassword = localStorage.getItem("adminPassword");
+    if (savedEmail && savedPassword) {
       setAdminEmail(savedEmail);
+      setAdminPassword(savedPassword);
       setIsLoggedIn(true);
     }
   }, []);
@@ -115,7 +171,7 @@ export default function AdminPage() {
       <div className={styles.container}>
         <div className={styles.loginBox}>
           <h1>Admin Dashboard</h1>
-          <p>Enter your admin email to access the dashboard</p>
+          <p>Enter your credentials to access</p>
 
           <form onSubmit={handleLogin} className={styles.form}>
             <input
@@ -123,6 +179,14 @@ export default function AdminPage() {
               placeholder="Admin email"
               value={adminEmail}
               onChange={e => setAdminEmail(e.target.value)}
+              disabled={loading}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Admin password"
+              value={adminPassword}
+              onChange={e => setAdminPassword(e.target.value)}
               disabled={loading}
               required
             />
@@ -197,7 +261,51 @@ export default function AdminPage() {
                     <td>{company.email}</td>
                     <td>{company.slug}</td>
                     <td className={styles.centered}>{company._count.products}</td>
-                    <td className={styles.centered}>{company.maxProducts}</td>
+                    <td className={styles.centered}>
+                      {editingMaxProducts[company.id] !== undefined ? (
+                        <div className={styles.editMaxProducts}>
+                          <input
+                            type="number"
+                            value={editingMaxProducts[company.id]}
+                            onChange={(e) => handleMaxProductsChange(company.id, e.target.value)}
+                            min="1"
+                            max="1000"
+                          />
+                          <button
+                            onClick={() => updateMaxProducts(company)}
+                            disabled={updatingId === company.id}
+                            className={styles.btnSave}
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={() => setEditingMaxProducts(prev => {
+                              const newState = { ...prev };
+                              delete newState[company.id];
+                              return newState;
+                            })}
+                            disabled={updatingId === company.id}
+                            className={styles.btnCancel}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <div className={styles.editMaxProductsView}>
+                          <span>{company.maxProducts}</span>
+                          <button
+                            onClick={() => setEditingMaxProducts(prev => ({
+                              ...prev,
+                              [company.id]: company.maxProducts
+                            }))}
+                            disabled={updatingId === company.id}
+                            className={styles.btnEdit}
+                          >
+                            ✎
+                          </button>
+                        </div>
+                      )}
+                    </td>
                     <td className={styles.centered}>
                       <span className={company.premium ? styles.premiumBadge : styles.freeBadge}>
                         {company.premium ? "✓ Premium" : "Free"}

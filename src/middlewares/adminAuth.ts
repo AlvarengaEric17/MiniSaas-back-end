@@ -6,16 +6,18 @@ export function isAdmin(
   next: NextFunction
 ): void {
   const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
   
-  if (!adminEmail) {
-    res.status(500).json({ error: "Admin email not configured" });
+  if (!adminEmail || !adminPassword) {
+    res.status(500).json({ error: "Admin credentials not configured" });
     return;
   }
 
-  const companyEmail = req.body?.email || req.query?.email;
+  const emailHeader = req.headers["x-admin-email"];
+  const passwordHeader = req.headers["x-admin-password"];
   
-  if (companyEmail !== adminEmail) {
-    res.status(403).json({ error: "Access denied. Admin only." });
+  if (emailHeader !== adminEmail || passwordHeader !== adminPassword) {
+    res.status(403).json({ error: "Access denied. Invalid credentials." });
     return;
   }
 

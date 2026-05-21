@@ -166,13 +166,9 @@ router.get(
 // List all companies
 router.get(
   "/admin/companies",
+  isAdmin,
   async (req, res, next) => {
     try {
-      const adminEmail = process.env.ADMIN_EMAIL;
-      if (!adminEmail || req.headers["x-admin-email"] !== adminEmail) {
-        res.status(403).json({ error: "Access denied. Admin only." });
-        return;
-      }
       const controller = new ListCompaniesController();
       await controller.handle(req, res);
     } catch (error) {
@@ -184,13 +180,9 @@ router.get(
 // Get admin stats
 router.get(
   "/admin/stats",
+  isAdmin,
   async (req, res, next) => {
     try {
-      const adminEmail = process.env.ADMIN_EMAIL;
-      if (!adminEmail || req.headers["x-admin-email"] !== adminEmail) {
-        res.status(403).json({ error: "Access denied. Admin only." });
-        return;
-      }
       const controller = new AdminStatsController();
       await controller.handle(req, res);
     } catch (error) {
@@ -202,13 +194,9 @@ router.get(
 // Update company premium status
 router.put(
   "/admin/company/:id/premium",
+  isAdmin,
   async (req, res, next) => {
     try {
-      const adminEmail = process.env.ADMIN_EMAIL;
-      if (!adminEmail || req.headers["x-admin-email"] !== adminEmail) {
-        res.status(403).json({ error: "Access denied. Admin only." });
-        return;
-      }
       req.body.companyId = req.params.id;
       const controller = new UpdateCompanyPremiumController();
       await controller.handle(req, res);

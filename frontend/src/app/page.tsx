@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>🚀 MiniSaaS</h1>
+        <h1>🚀 Catálogo Web</h1>
         <p>Catálogo Web para Pequenas Empresas</p>
       </header>
 

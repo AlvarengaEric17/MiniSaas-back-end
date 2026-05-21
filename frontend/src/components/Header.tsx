@@ -41,7 +41,7 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          🚀 MiniSaaS
+          🚀 Catálogo Web
         </Link>
 
         <nav className={styles.nav}>

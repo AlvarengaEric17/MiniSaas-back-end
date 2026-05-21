@@ -285,6 +285,88 @@
   cursor: not-allowed;
 }
 
+.editMaxProducts {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  input {
+    width: 60px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #3b82f6;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    text-align: center;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+  }
+}
+
+.editMaxProductsView {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    font-weight: 500;
+  }
+}
+
+.btnEdit,
+.btnSave,
+.btnCancel {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnEdit {
+  background-color: #93c5fd;
+  color: #1e40af;
+
+  &:hover:not(:disabled) {
+    background-color: #60a5fa;
+  }
+}
+
+.btnSave {
+  background-color: #86efac;
+  color: #166534;
+
+  &:hover:not(:disabled) {
+    background-color: #4ade80;
+  }
+}
+
+.btnCancel {
+  background-color: #fca5a5;
+  color: #991b1b;
+
+  &:hover:not(:disabled) {
+    background-color: #f87171;
+  }
+}
+
+.btnEdit:disabled,
+.btnSave:disabled,
+.btnCancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1024px) {
   .tableWrapper {
     font-size: 0.875rem;
