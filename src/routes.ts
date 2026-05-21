@@ -18,6 +18,12 @@ import { DeleteProductController } from "@/controllers/product/DeleteProductCont
 // Catalog Controller
 import { GetCatalogController } from "@/controllers/catalog/GetCatalogController";
 
+// Admin Controllers
+import { ListCompaniesController } from "@/controllers/admin/ListCompaniesController";
+import { UpdateCompanyPremiumController } from "@/controllers/admin/UpdateCompanyPremiumController";
+import { AdminStatsController } from "@/controllers/admin/AdminStatsController";
+import { isAdmin } from "@/middlewares/adminAuth";
+
 // Schemas
 import {
   createCompanySchema,
@@ -148,6 +154,63 @@ router.get(
   async (req, res, next) => {
     try {
       const controller = new GetCatalogController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ==================== ADMIN ====================
+
+// List all companies
+router.get(
+  "/admin/companies",
+  async (req, res, next) => {
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (!adminEmail || req.headers["x-admin-email"] !== adminEmail) {
+        res.status(403).json({ error: "Access denied. Admin only." });
+        return;
+      }
+      const controller = new ListCompaniesController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Get admin stats
+router.get(
+  "/admin/stats",
+  async (req, res, next) => {
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (!adminEmail || req.headers["x-admin-email"] !== adminEmail) {
+        res.status(403).json({ error: "Access denied. Admin only." });
+        return;
+      }
+      const controller = new AdminStatsController();
+      await controller.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Update company premium status
+router.put(
+  "/admin/company/:id/premium",
+  async (req, res, next) => {
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (!adminEmail || req.headers["x-admin-email"] !== adminEmail) {
+        res.status(403).json({ error: "Access denied. Admin only." });
+        return;
+      }
+      req.body.companyId = req.params.id;
+      const controller = new UpdateCompanyPremiumController();
       await controller.handle(req, res);
     } catch (error) {
       next(error);
